@@ -37,4 +37,9 @@ public abstract class Model {
             history = model.get_history();
         }
     }
+
+    public enum DatabaseColumn {
+        id,
+        timestamp
+    }
 }

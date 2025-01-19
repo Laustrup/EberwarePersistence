@@ -12,11 +12,14 @@ public class Login {
 
     private int _picking;
 
+    private User _user;
+
     public Login(DTO login) {
         this(
                 login.getUsername(),
                 login.getPassword(),
-                login.getPicking()
+                login.getPicking(),
+                new User(login.getUser())
         );
     }
 
@@ -29,10 +32,13 @@ public class Login {
 
         private int picking;
 
+        private User.DTO user;
+
         public DTO(Login login) {
             this.username = login.get_username();
             this.password = login.get_password();
             this.picking = login.get_picking();
+            this.user = new User.DTO(login.get_user());
         }
     }
 }

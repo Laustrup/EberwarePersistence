@@ -40,6 +40,10 @@ public class DatabaseManager {
         return handle(query, Action.CUD);
     }
 
+    public static ResultSet upsertAndRead(Query query, List<DatabaseParameter> parameters) {
+        return handle(query, Action.CUD, parameters);
+    }
+
     public static void create(Query query) {
         handle(query, Action.CREATE);
     }

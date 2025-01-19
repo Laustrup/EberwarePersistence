@@ -16,6 +16,12 @@ public class UserQueries {
                 users
                     inner join contact_infos
                         on users.contact_info_id = contact_infos.id
+                    inner join addresses
+                        on contact_infos.id = addresses.contact_info_id
+                    inner join stories
+                        on users.id = stories.owner_id || contact_infos.id = stories.owner_id
+                    inner join story_details
+                        on stories.id = story_details.story_id
             where
                 contact_infos.email = %s
                     and

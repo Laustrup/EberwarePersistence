@@ -17,10 +17,29 @@ public class Response<T> {
 
     public HttpStatus _httpStatus;
 
+    public Response(T object, HttpStatus httpStatus) {
+        this(
+                object,
+                null,
+                httpStatus
+        );
+    }
+
     public Response(T object, Situation situation, HttpStatus httpStatus) {
         _object = object;
         _situation = situation;
         _httpStatus = httpStatus;
+    }
+
+    public static <T> Response<T> ifNull(T object, HttpStatus httpStatus) {
+        return ifNull(object, httpStatus, HttpStatus.OK);
+    }
+
+    public static <T> Response<T> ifNull(T object, HttpStatus fail, HttpStatus success) {
+        return new Response<>(
+                object,
+                object == null ? fail : success
+        );
     }
 
     public enum Situation {

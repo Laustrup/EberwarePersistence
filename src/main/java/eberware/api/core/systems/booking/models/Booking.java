@@ -1,9 +1,9 @@
 package eberware.api.core.systems.booking.models;
 
-import eberware.api.core.systems.models.ContactInfo;
 import eberware.api.core.systems.models.Duration;
 import eberware.api.core.systems.models.History;
 import eberware.api.core.systems.models.Model;
+import eberware.api.core.systems.models.User;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -22,14 +22,14 @@ public class Booking extends Model {
 
     private Duration _duration;
 
-    private ContactInfo _contactInfo;
+    private User.ContactInfo _contactInfo;
 
     public Booking(DTO booking) {
         super(booking);
         _ownerId = booking.getOwnerId();
         _booked = booking.getBooked();
         _duration = booking.getDuration();
-        _contactInfo = booking.getContactInfo();
+        _contactInfo = new User.ContactInfo(booking.getContactInfo());
     }
 
     public Booking(
@@ -37,7 +37,7 @@ public class Booking extends Model {
             UUID ownerId,
             LocalDateTime booked,
             Duration duration,
-            ContactInfo contactInfo,
+            User.ContactInfo contactInfo,
             History history,
             Instant timestamp
     ) {
@@ -77,14 +77,14 @@ public class Booking extends Model {
 
         private Duration duration;
 
-        private ContactInfo contactInfo;
+        private User.ContactInfo.DTO contactInfo;
 
         public DTO(Booking booking) {
             super(booking);
             ownerId = booking.get_ownerId();
             booked = booking.get_booked();
             duration = booking.get_duration();
-            contactInfo = booking.get_contactInfo();
+            contactInfo = new User.ContactInfo.DTO(booking.get_contactInfo());
         }
     }
 }

@@ -1,6 +1,5 @@
 package eberware.api.core.systems.services.queries;
 
-import eberware.api.core.systems.models.ContactInfo;
 import eberware.api.core.systems.models.Query;
 import eberware.api.core.systems.models.User;
 import eberware.api.core.systems.persistence.DatabaseManager;
@@ -32,14 +31,15 @@ public class UserQueryService {
         );
     }
 
-    public static void upsert(User user, String password) {
+    public static ResultSet upsert(User user, String password) {
         List<Query> queries = new ArrayList<>();
 
         queries.add(UserQueries.upsertContactInfoQuery);
         queries.addAll(prepareAddressScript(user.get_contactInfo().get_addresses()));
         queries.add(UserQueries.upsertUserQuery);
+        queries.add(UserQueries.loginQuery);
 
-        DatabaseManager.upsert(
+        return DatabaseManager.upsertAndRead(
                 new Query(
                         queries.stream()
                                 .map(Query::get_script)
@@ -50,7 +50,7 @@ public class UserQueryService {
         );
     }
 
-    public static List<Query> prepareAddressScript(List<ContactInfo.Address> addresses) {
+    public static List<Query> prepareAddressScript(List<User.ContactInfo.Address> addresses) {
         List<Query> queries = new ArrayList<>();
 
         for (int i = 0; i < addresses.size(); i++)
@@ -69,7 +69,7 @@ public class UserQueryService {
         ));
 
         for (int i = 0; i <= user.get_contactInfo().get_addresses().size(); i++) {
-            ContactInfo.Address address = user.get_contactInfo().get_addresses().get(i - parameters.size());
+            User.ContactInfo.Address address = user.get_contactInfo().get_addresses().get(i - parameters.size());
             parameters.addAll(List.of(
                     new DatabaseParameter(formatIndexedKey(Parameter.ADDRESS_ID.get_key(), i), address.get_id()),
                     new DatabaseParameter(formatIndexedKey(Parameter.ADDRESS_STREET.get_key(), i), address.get_street()),
