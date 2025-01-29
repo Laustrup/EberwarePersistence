@@ -6,25 +6,22 @@ import lombok.Getter;
 public class SecurityLibrary {
 
     @Getter
-    private static final int _pickingBound = 3;
+    public static final int _bCryptFactor = 5;
 
-    @Getter
-    private static final int _bCryptOffsetLowerBound = 4;
+    public static final int bCryptOffsetLowerBound = 7;
 
-    @Getter
-    private static final int _bCryptOffsetUpperBound = 72;
+    public static final int bCryptOffsetUpperBound = 72;
 
     @Getter
     private static String _gibberish;
 
-    @Getter
-    private static final String _gibberishRules = String.format("""
-            1. Each index must be higher than %s
-            2. The picking bound is %s, therefore the total value of the gibberish must not exceed %s
+    public static final char passwordEncodingCharacter = '€';
+
+    public static final String gibberishRules = String.format("""
+            1. Each index must be between %s and %s
             """,
-            _bCryptOffsetLowerBound,
-            _pickingBound,
-            _bCryptOffsetUpperBound
+            bCryptOffsetLowerBound,
+            bCryptOffsetUpperBound
     );
 
     public static void setup(
@@ -40,14 +37,14 @@ public class SecurityLibrary {
                         %s
                         """,
                     gibberish,
-                    SecurityLibrary.get_gibberishRules()
+                    SecurityLibrary.gibberishRules
             ));
 
         _gibberish = gibberish;
     }
 
     public static boolean bCryptOffsetIsPermitted(int offset) {
-        return offset > _bCryptOffsetLowerBound && offset < _bCryptOffsetUpperBound;
+        return offset > bCryptOffsetLowerBound && offset < bCryptOffsetUpperBound;
     }
 
     public static boolean gibberishIsPermitted(String gibberish) {
@@ -61,7 +58,7 @@ public class SecurityLibrary {
     private static boolean gibberishIsValid(char letter, int length) {
         int hex = PasswordService.convertHexToInt(letter);
 
-        return hex > _bCryptOffsetLowerBound && hex * length < _bCryptOffsetUpperBound;
+        return hex > bCryptOffsetLowerBound && hex * length < bCryptOffsetUpperBound;
     }
 
     @Getter

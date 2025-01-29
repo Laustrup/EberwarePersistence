@@ -3,8 +3,11 @@ package eberware.api.core.systems.models;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.UUID;
 
 @Getter @AllArgsConstructor
@@ -22,7 +25,9 @@ public abstract class Model {
         _history = model.getHistory();
     }
 
-    @Getter @Setter @AllArgsConstructor
+    @Getter @Setter
+    @FieldNameConstants
+    @AllArgsConstructor
     public static class DTO {
 
         private UUID id;

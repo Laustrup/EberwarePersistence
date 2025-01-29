@@ -15,30 +15,34 @@ import static eberware.api.core.systems.services.JDBCService.*;
 
 public class HistoryBuilder {
 
-    public static History.Story buildStory(ResultSet resultSet) throws SQLException {
-        return new History.Story(
-                get(
-                        column -> getUUID(resultSet, column),
-                        DatabaseTable.STORY.get_title(),
-                        Model.DatabaseColumn.id.name()
-                ),
-                get(
-                        column -> getString(resultSet, column),
-                        DatabaseTable.STORY.get_title(),
-                        History.Story.DatabaseColumn.title.name()
-                ),
-                getCollection(
-                        resultSet,
-                        set -> get(
-                                column -> getString(resultSet, column),
-                                DatabaseTable.STORY_DETAIL.get_title(),
-                                History.Story.DatabaseColumn.content.name()
-                        )
-                ),
-                get(
-                        column -> getTimestamp(resultSet, column, Timestamp::toInstant)
-                )
-        );
+    public static History.Story buildStory(ResultSet resultSet) {
+        try {
+            return new History.Story(
+                    get(
+                            column -> getUUID(resultSet, column),
+                            DatabaseTable.STORY.get_title(),
+                            Model.DatabaseColumn.id.name()
+                    ),
+                    get(
+                            column -> getString(resultSet, column),
+                            DatabaseTable.STORY.get_title(),
+                            History.Story.DatabaseColumn.title.name()
+                    ),
+                    getCollection(
+                            resultSet,
+                            set -> get(
+                                    column -> getString(resultSet, column),
+                                    DatabaseTable.STORY_DETAIL.get_title(),
+                                    History.Story.DatabaseColumn.content.name()
+                            )
+                    ),
+                    get(
+                            column -> getTimestamp(resultSet, column, Timestamp::toInstant)
+                    )
+            );
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static Stream<History.Story> getStoriesOfOwner(Map<UUID, History.Story> collection, UUID ownerId) {

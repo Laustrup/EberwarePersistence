@@ -33,11 +33,13 @@ create table contact_infos(
 create table addresses(
     id binary(16) not null,
     contact_info_id binary(16) not null,
-    street varchar(32),
-    number varchar(8),
+    street varchar(32) not null,
+    number varchar(8) not null,
+    floor varchar(16),
     postal_code varchar(8),
-    city varchar(32),
-    country varchar(16),
+    city varchar(32) not null,
+    country varchar(16) not null,
+    timestamp datetime not null default now(),
 
     constraint PK_addresses
         primary key (id),
@@ -50,18 +52,25 @@ create table addresses(
 
 create table users(
     id binary(16) not null,
-    password varchar(128) not null,
-    contact_info_id binary(16),
+    password longtext not null,
     zone_id varchar(32) not null,
     timestamp datetime not null default now(),
 
     constraint PK_user
-        primary key (id),
-    constraint FK_client_contact_info
-        foreign key (contact_info_id)
-            references contact_infos(id)
-               on update cascade
-               on delete set null
+        primary key (id)
+);
+
+create table user_authorities(
+    user_id binary(16) not null,
+    authority varchar(16),
+
+    constraint PK_user_authority
+        primary key (user_id, authority),
+    constraint FK_user
+        foreign key (user_id)
+            references users(id)
+                on update cascade
+                on delete cascade
 );
 
 create table days(

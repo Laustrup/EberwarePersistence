@@ -29,7 +29,7 @@ public class History {
                 .map(Story::get_ownerId)
                 .toList();
 
-        if (ownerIds.stream().allMatch(id -> Collections.frequency(ownerIds, id) == ownerIds.size()))
+        if (!ownerIds.isEmpty() && ownerIds.stream().allMatch(id -> Collections.frequency(ownerIds, id) == ownerIds.size()))
             throw new IllegalArgumentException("Owner IDs not unique for history with stories: " + stories);
 
         _stories = stories;

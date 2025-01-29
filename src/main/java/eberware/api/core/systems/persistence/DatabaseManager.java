@@ -36,14 +36,6 @@ public class DatabaseManager {
         updateAndRead(query, parameters);
     }
 
-    public static ResultSet upsertAndRead(Query query) {
-        return handle(query, Action.CUD);
-    }
-
-    public static ResultSet upsertAndRead(Query query, List<DatabaseParameter> parameters) {
-        return handle(query, Action.CUD, parameters);
-    }
-
     public static void create(Query query) {
         handle(query, Action.CREATE);
     }
@@ -115,8 +107,10 @@ public class DatabaseManager {
             List<DatabaseParameter> parameters,
             String url
     ) throws SQLException {
+        PreparedStatement preparedStatement = null;
+
         try {
-            PreparedStatement preparedStatement = prepareStatement(
+            preparedStatement = prepareStatement(
                     query,
                     parameters,
                     url
@@ -139,7 +133,9 @@ public class DatabaseManager {
                             
                             With action: %s
                             """,
-                            query.get_script(),
+                            preparedStatement == null
+                                    ? query.get_script()
+                                    : preparedStatement.toString(),
                             action
                     ),
                     exception

@@ -52,7 +52,7 @@ public class Query {
     }
 
     public static String formatIndexedKey(String parameter, int index) {
-        return String.format("%s_%s", parameter, index);
+        return String.format("%s_%s", parameter, index).replace(" ", "") + " ";
     }
 
     @Getter
@@ -79,5 +79,10 @@ public class Query {
         public String toString() {
             return _key;
         }
+    }
+
+    @Override
+    public String toString() {
+        return _script;
     }
 }

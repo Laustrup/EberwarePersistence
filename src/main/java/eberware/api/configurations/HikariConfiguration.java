@@ -1,4 +1,4 @@
-package eberware.api;
+package eberware.api.configurations;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;

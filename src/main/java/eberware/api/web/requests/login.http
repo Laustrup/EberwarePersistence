@@ -1,0 +1,33 @@
+POST http://localhost:8080/user/create
+Content-Type: application/json
+
+{
+  "name":  "test@eberware.com",
+  "password": "T€5t",
+  "user": {
+    "contactInfo": {
+      "name": "Test user",
+      "email": "test@eberware.com",
+      "addresses": [
+        {
+          "street": "testvej",
+          "number": "1",
+          "floor": "stue tv.",
+          "postalCode": "4600",
+          "city": "Køge",
+          "country": "DK"
+        }
+      ]
+    },
+    "zoneId": "Europe/Copenhagen"
+  }
+}
+
+###
+GET http://localhost:8080/user/login
+Content-Type: application/json
+
+{
+  "name":  "test@eberware.com",
+  "password": "T€5t"
+}

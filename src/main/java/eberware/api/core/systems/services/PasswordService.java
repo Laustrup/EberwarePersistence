@@ -2,55 +2,64 @@ package eberware.api.core.systems.services;
 
 import eberware.api.core.systems.libaries.SecurityLibrary;
 import eberware.api.core.systems.models.Password;
+import eberware.api.core.systems.models.User;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.naming.SizeLimitExceededException;
-import java.util.Random;
 
 public class PasswordService {
 
-    private static final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    private static final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(SecurityLibrary.get_bCryptFactor());
 
-    private static final Random _random = new Random();
-
-    public static String encode(String plainTextPassword) {
-        return encoder.encode(plainTextPassword);
+    public static Password encode(String plainTextPassword) {
+        try {
+            return enGibberise(encoder.encode(plainTextPassword));
+        } catch (SizeLimitExceededException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public static Password enGibberise(String plainTextPassword)
-            throws SizeLimitExceededException, IllegalArgumentException {
-        int picking = generatePicking();
-
-        return new Password(
-                enGibberise(plainTextPassword, picking),
-                picking
-        );
+    public static boolean matches(String plainTextPassword, String gibberish) {
+        try {
+            return encoder.matches(plainTextPassword, deGibberise(gibberish));
+        } catch (SizeLimitExceededException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    private static int generatePicking() {
-        return _random.nextInt(SecurityLibrary.get_pickingBound());
-    }
+    private static String deGibberise(String gibberish) throws SizeLimitExceededException {
+        String[] encodings = gibberish.split(String.valueOf(SecurityLibrary.passwordEncodingCharacter));
+        StringBuilder password = new StringBuilder(encodings[0]);
+        StringBuilder stash = new StringBuilder(encodings[1]);
 
-    private static String enGibberise(String plainText, int picking)
-            throws SizeLimitExceededException, IllegalArgumentException {
-        StringBuilder password = new StringBuilder(encoder.encode(plainText));
-
-        for (char letter : SecurityLibrary.get_gibberish().toCharArray())
-            enGibberise(password, picking, letter);
-
+        for (int i = 0; i < stash.length(); i++) {
+            int offset = calculateOffset(SecurityLibrary.get_gibberish().charAt(i));
+            password.replace(offset, offset + 1, String.valueOf(stash.toString().charAt(i)));
+        }
         return password.toString();
     }
 
-    private static StringBuilder enGibberise(StringBuilder password, int picking, char letter)
+    private static Password enGibberise(String plainText)
             throws SizeLimitExceededException, IllegalArgumentException {
-        return password.insert(
-                calculateOffset(picking, letter),
-                Integer.toHexString(_random.nextInt(16))
-        );
+        StringBuilder password = new StringBuilder(encoder.encode(plainText));
+        StringBuilder stash = new StringBuilder();
+
+        StringService.Configuration stringConfiguration = new StringService.Configuration(false, true);
+        for (char letter : SecurityLibrary.get_gibberish().toCharArray()) {
+            int offset = calculateOffset(letter);
+            stash.append(password.charAt(offset));
+            password.replace(
+                    offset,
+                    offset + 1,
+                    StringService.generateRandom(1, stringConfiguration)
+            );
+        }
+
+        return new Password(password.toString(), stash.toString());
     }
 
-    private static int calculateOffset(int picking, char letter) throws SizeLimitExceededException {
-        int offset = picking * convertHexToInt(letter);
+    private static int calculateOffset(char letter) throws SizeLimitExceededException {
+        int offset = convertHexToInt(letter) + SecurityLibrary.bCryptOffsetLowerBound;
 
         if (!SecurityLibrary.bCryptOffsetIsPermitted(offset))
             throw new SizeLimitExceededException(
@@ -58,8 +67,8 @@ public class PasswordService {
                             The bcrypt offset "%s" is not within %s and %s, therefore it is not allowed!
                             """,
                             offset,
-                            SecurityLibrary.get_bCryptOffsetLowerBound(),
-                            SecurityLibrary.get_bCryptOffsetUpperBound()
+                            SecurityLibrary.bCryptOffsetLowerBound,
+                            SecurityLibrary.bCryptOffsetUpperBound
                     )
             );
 
@@ -83,5 +92,19 @@ public class PasswordService {
                     )
             );
         };
+    }
+
+    public static void check(String password, User user) throws IllegalAccessException {
+        if (user != null && !PasswordService.matches(
+                password,
+                user.get_password()
+        ))
+            throw new IllegalAccessException(String.format("""
+                    Passwords "%s" and "%s" does not match for user with email "%s"
+                    """,
+                    password,
+                    user.get_password(),
+                    user.get_contactInfo().get_email()
+            ));
     }
 }

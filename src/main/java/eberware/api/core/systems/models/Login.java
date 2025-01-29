@@ -1,44 +1,76 @@
 package eberware.api.core.systems.models;
 
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.experimental.FieldNameConstants;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-@Getter @AllArgsConstructor
-public class Login {
+import java.util.Collection;
 
-    private String _username;
+@JsonIgnoreProperties(ignoreUnknown = true)
+@NoArgsConstructor
+@FieldNameConstants
+public class Login implements UserDetails {
 
-    private String _password;
+    private String name;
 
-    private int _picking;
-
-    private User _user;
-
-    public Login(DTO login) {
-        this(
-                login.getUsername(),
-                login.getPassword(),
-                login.getPicking(),
-                new User(login.getUser())
-        );
-    }
+    private String password;
 
     @Getter
-    private static class DTO {
+    private User.DTO user;
 
-        private String username;
+    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+    public Login(
+            @JsonProperty(Fields.name) String name,
+            @JsonProperty(Fields.password) String password,
+            @JsonProperty(Fields.user) User.DTO user
+    ) {
+        this.name = name;
+        this.password = password;
+        this.user = user;
+    }
 
-        private String password;
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return user.getAuthorities().stream()
+                .map(authority -> new SimpleGrantedAuthority(authority.name()))
+                .toList();
+    }
 
-        private int picking;
+    @Override
+    public String getPassword() {
+        return password;
+    }
 
-        private User.DTO user;
+    @Override
+    public String getUsername() {
+        return user == null
+                ? name
+                : user.getContactInfo().getEmail();
+    }
 
-        public DTO(Login login) {
-            this.username = login.get_username();
-            this.password = login.get_password();
-            this.picking = login.get_picking();
-            this.user = new User.DTO(login.get_user());
-        }
+    @Override
+    public boolean isAccountNonExpired() {
+        return UserDetails.super.isAccountNonExpired();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return UserDetails.super.isAccountNonLocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return UserDetails.super.isCredentialsNonExpired();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return UserDetails.super.isEnabled();
     }
 }

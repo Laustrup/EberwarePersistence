@@ -1,9 +1,12 @@
 package eberware.api.core.systems.services;
 
+import eberware.api.core.systems.models.Query;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -96,11 +99,72 @@ public class JDBCService {
         }
     }
 
+    public static Integer getInteger(ResultSet resultSet, String column) {
+        try {
+            return resultSet.getInt(column);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static <T> T getTimestamp(ResultSet resultSet, String column, Function<Timestamp, T> function) {
         try {
             return get(resultSet.getTimestamp(column), function);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static <T> void build(
+            ResultSet resultSet,
+            Runnable runnable,
+            Function<T, Boolean> breaker,
+            Consumer<Exception> exception,
+            T... primaries
+    ) {
+        try {
+            build(
+                    resultSet,
+                    runnable,
+                    breaker,
+                    primaries
+            );
+        } catch (SQLException e) {
+            exception.accept(e);
+        }
+    }
+
+    public static <T> void build(
+            ResultSet resultSet,
+            Runnable runnable,
+            Function<T, Boolean> breaker,
+            T... primaries
+    ) throws SQLException {
+        while (resultSet.next()) {
+            if (isDoneBuilding(breaker, primaries)) {
+                resultSet.previous();
+                break;
+            }
+            runnable.run();
+        }
+    }
+
+    public static <T> List<Query> prepareQueries(Collection<T> collection, Function<Integer, Query> function) {
+        if (collection == null || collection.isEmpty())
+            return new ArrayList<>();
+
+        List<Query> queries = new ArrayList<>();
+
+        for (int i = 0; i < collection.size(); i++)
+            queries.add(function.apply(i));
+
+        return queries;
+    }
+
+    private static <T> boolean isDoneBuilding(Function<T, Boolean> breaker, T... primaries) {
+        for (T primary : primaries)
+            if (primary != null && breaker.apply(primary))
+                return true;
+        return false;
     }
 }

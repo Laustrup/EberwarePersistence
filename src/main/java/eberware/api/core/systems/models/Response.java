@@ -5,9 +5,9 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter @AllArgsConstructor
-public class Response<T> {
+public class Response <DTO> {
 
-    public T _object;
+    public DTO _object;
 
     public Situation _situation;
 
@@ -17,7 +17,7 @@ public class Response<T> {
 
     public HttpStatus _httpStatus;
 
-    public Response(T object, HttpStatus httpStatus) {
+    public Response(DTO object, HttpStatus httpStatus) {
         this(
                 object,
                 null,
@@ -25,17 +25,17 @@ public class Response<T> {
         );
     }
 
-    public Response(T object, Situation situation, HttpStatus httpStatus) {
+    public Response(DTO object, Situation situation, HttpStatus httpStatus) {
         _object = object;
         _situation = situation;
         _httpStatus = httpStatus;
     }
 
-    public static <T> Response<T> ifNull(T object, HttpStatus httpStatus) {
+    public static <DTO> Response<DTO> ifNull(DTO object, HttpStatus httpStatus) {
         return ifNull(object, httpStatus, HttpStatus.OK);
     }
 
-    public static <T> Response<T> ifNull(T object, HttpStatus fail, HttpStatus success) {
+    public static <DTO> Response<DTO> ifNull(DTO object, HttpStatus fail, HttpStatus success) {
         return new Response<>(
                 object,
                 object == null ? fail : success
