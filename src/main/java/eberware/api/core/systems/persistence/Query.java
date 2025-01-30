@@ -1,9 +1,10 @@
-package eberware.api.core.systems.models;
+package eberware.api.core.systems.persistence;
 
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Getter
@@ -26,6 +27,15 @@ public class Query {
 
     public Query(String script, Parameter parameter) {
         this(script, List.of(parameter));
+    }
+
+    public Query(Collection<Query> queries) {
+        this(
+                queries.stream()
+                        .map(Query::get_script)
+                        .reduce(String::concat)
+                        .orElseThrow()
+        );
     }
 
     public Query(String script, List<Parameter> parameters) {
@@ -53,6 +63,19 @@ public class Query {
 
     public static String formatIndexedKey(String parameter, int index) {
         return String.format("%s_%s", parameter, index).replace(" ", "") + " ";
+    }
+
+    void prepareTransaction() {
+        boolean insertSemicolon = !_script
+                .replace(" ", "")
+                .replace("\n", "")
+                .endsWith(";");
+
+        _script = /*language=mysql*/
+                "\nstart transaction;\n\n" +
+                _script +
+                (insertSemicolon ? ";" : "") +
+                "\ncommit;";
     }
 
     @Getter

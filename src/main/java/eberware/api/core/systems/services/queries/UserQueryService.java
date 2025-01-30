@@ -1,6 +1,6 @@
 package eberware.api.core.systems.services.queries;
 
-import eberware.api.core.systems.models.Query;
+import eberware.api.core.systems.persistence.Query;
 import eberware.api.core.systems.models.User;
 import eberware.api.core.systems.persistence.DatabaseManager;
 import eberware.api.core.systems.persistence.DatabaseParameter;
@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static eberware.api.core.systems.persistence.queries.UserQueries.Parameter;
-import static eberware.api.core.systems.models.Query.formatIndexedKey;
+import static eberware.api.core.systems.persistence.Query.formatIndexedKey;
 import static eberware.api.core.systems.services.JDBCService.*;
 
 public class UserQueryService {
@@ -33,22 +33,18 @@ public class UserQueryService {
     }
 
     public static ResultSet upsert(User user) {
-        List<Query> queries = new ArrayList<>();
+        List<Query> queries = new ArrayList<>(List.of(
+                UserQueries.upsertUserQuery,
+                UserQueries.upsertContactInfoQuery
+        ));
 
-        queries.add(UserQueries.upsertUserQuery);
-        queries.add(UserQueries.upsertContactInfoQuery);
         queries.addAll(prepareQueries(user.get_contactInfo().get_addresses(), UserQueries::upsertAddressQuery));
         queries.addAll(prepareQueries(user.get_authorities(), UserQueries::insertIgnoreAuthorityQuery));
 
         user.gibberisePassword();
 
         DatabaseManager.upsert(
-                new Query(
-                        queries.stream()
-                                .map(Query::get_script)
-                                .reduce(String::concat)
-                                .orElseThrow()
-                ),
+                new Query(queries),
                 generateUpsertParameters(user)
         );
 

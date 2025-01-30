@@ -2,7 +2,6 @@ package eberware.api.core.systems.persistence;
 
 import eberware.api.ProgramInitializer;
 import eberware.api.core.systems.libaries.DatabaseLibrary;
-import eberware.api.core.systems.models.Query;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -29,11 +28,11 @@ public class DatabaseManager {
     }
 
     public static void upsert(Query query) {
-        updateAndRead(query);
+        upsert(query, new ArrayList<>());
     }
 
     public static void upsert(Query query, List<DatabaseParameter> parameters) {
-        updateAndRead(query, parameters);
+        handle(query, Action.CUD, parameters);
     }
 
     public static void create(Query query) {
@@ -42,18 +41,6 @@ public class DatabaseManager {
 
     public static void create(Query query, List<DatabaseParameter> parameters) {
         handle(query, Action.CREATE, parameters);
-    }
-
-    public static ResultSet createAndRead(Query query) {
-        return handle(query, Action.CREATE);
-    }
-
-    public static ResultSet updateAndRead(Query query) {
-        return handle(query, Action.UPDATE);
-    }
-
-    public static ResultSet updateAndRead(Query query, List<DatabaseParameter> parameters) {
-        return handle(query, Action.UPDATE, parameters);
     }
 
     private static ResultSet handle(Query query, Action action) {
@@ -107,6 +94,8 @@ public class DatabaseManager {
             List<DatabaseParameter> parameters,
             String url
     ) throws SQLException {
+        if (action != Action.READ)
+            query.prepareTransaction();
         PreparedStatement preparedStatement = null;
 
         try {

@@ -1,6 +1,6 @@
 package eberware.api.core.systems.persistence.queries;
 
-import eberware.api.core.systems.models.Query;
+import eberware.api.core.systems.persistence.Query;
 import lombok.Getter;
 
 import java.util.List;

@@ -1,6 +1,6 @@
 package eberware.api.core.systems.persistence.queries;
 
-import eberware.api.core.systems.models.Query;
+import eberware.api.core.systems.persistence.Query;
 import lombok.Getter;
 
 import java.util.Arrays;
@@ -18,7 +18,7 @@ public class ScriptorianQueries {
         timestamp datetime not null default now(),
 
         primary key (file_name)
-    )
+    );
     """);
 
     public static final Query findScriptoriesWithoutSuccess = new Query(/*language=MySQL*/ """

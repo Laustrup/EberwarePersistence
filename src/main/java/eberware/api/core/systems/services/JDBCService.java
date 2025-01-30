@@ -1,6 +1,6 @@
 package eberware.api.core.systems.services;
 
-import eberware.api.core.systems.models.Query;
+import eberware.api.core.systems.persistence.Query;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

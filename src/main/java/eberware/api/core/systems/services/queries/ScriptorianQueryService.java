@@ -1,6 +1,6 @@
 package eberware.api.core.systems.services.queries;
 
-import eberware.api.core.systems.models.Query;
+import eberware.api.core.systems.persistence.Query;
 import eberware.api.core.systems.persistence.DatabaseManager;
 import eberware.api.core.systems.persistence.DatabaseParameter;
 import eberware.api.core.systems.persistence.queries.ScriptorianQueries;
