@@ -2,7 +2,6 @@ package eberware.api.core.systems.services.builders;
 
 import eberware.api.core.systems.models.History;
 import eberware.api.core.systems.models.Model;
-import eberware.api.core.systems.persistence.DatabaseTable;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,22 +16,26 @@ public class HistoryBuilder {
 
     public static History.Story buildStory(ResultSet resultSet) {
         try {
+            if (get(
+                    column -> getUUID(resultSet, column),
+                    History.Story.DatabaseColumn.story_id.name()
+            ) == null)
+                return null;
+
             return new History.Story(
                     get(
                             column -> getUUID(resultSet, column),
-                            DatabaseTable.STORY.get_title(),
                             Model.DatabaseColumn.id.name()
                     ),
                     get(
                             column -> getString(resultSet, column),
-                            DatabaseTable.STORY.get_title(),
                             History.Story.DatabaseColumn.title.name()
                     ),
                     getCollection(
                             resultSet,
+                            History.Story.DatabaseColumn.story_id.name(),
                             set -> get(
                                     column -> getString(resultSet, column),
-                                    DatabaseTable.STORY_DETAIL.get_title(),
                                     History.Story.DatabaseColumn.content.name()
                             )
                     ),
@@ -47,6 +50,12 @@ public class HistoryBuilder {
 
     public static Stream<History.Story> getStoriesOfOwner(Map<UUID, History.Story> collection, UUID ownerId) {
         return collection.values().stream()
-                .filter(story -> story.get_ownerId().equals(ownerId));
+                .filter(story ->
+                        story != null
+                                &&
+                        story.get_ownerId() != null
+                                &&
+                        story.get_ownerId().equals(ownerId)
+                );
     }
 }

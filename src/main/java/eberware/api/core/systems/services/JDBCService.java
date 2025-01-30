@@ -1,5 +1,6 @@
 package eberware.api.core.systems.services;
 
+import eberware.api.core.systems.models.User;
 import eberware.api.core.systems.persistence.Query;
 
 import java.sql.ResultSet;
@@ -45,25 +46,23 @@ public class JDBCService {
 
     public static <T> List<T> getCollection(
             ResultSet resultSet,
-            Function<ResultSet, T> function
-    ) throws SQLException {
-        return getCollection(resultSet, "id", function);
-    }
-
-    public static <T> List<T> getCollection(
-            ResultSet resultSet,
             String idColumn,
             Function<ResultSet, T> function
     ) throws SQLException {
         List<T> ts = new ArrayList<>();
-        UUID id = resultSet.getObject(idColumn, UUID.class);
+        UUID id = getUUID(resultSet, idColumn);
 
-        while (resultSet.next()) {
-            if (resultSet.getObject(idColumn, UUID.class) != id)
+        if (id == null)
+            return ts;
+
+        do {
+            UUID currentId = getUUID(resultSet, idColumn);
+
+            if (currentId == null || !currentId.equals(id))
                 return ts;
 
             ts.add(function.apply(resultSet));
-        }
+        } while (resultSet.next());
 
         return ts;
     }
@@ -93,7 +92,9 @@ public class JDBCService {
 
     public static UUID getUUID(ResultSet resultSet, String column) {
         try {
-            return resultSet.getObject(column, UUID.class);
+            String value = resultSet.getString(column);
+
+            return value == null ? null : UUID.fromString(value);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -132,6 +133,15 @@ public class JDBCService {
         } catch (SQLException e) {
             exception.accept(e);
         }
+    }
+
+    public static <K, V> void putIfAbsent(
+            Map<K, V> map,
+            K key,
+            V value
+    ) {
+        if (key != null)
+            map.putIfAbsent(key, value);
     }
 
     public static <T> void build(

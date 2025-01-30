@@ -19,13 +19,17 @@ Content-Type: application/json
         }
       ]
     },
-    "zoneId": "Europe/Copenhagen"
+    "zoneId": "Europe/Copenhagen",
+    "authorities": [
+      "ADMIN"
+    ]
   }
 }
 
 ###
 GET http://localhost:8080/user/login
 Content-Type: application/json
+Accept: application/json
 
 {
   "name":  "test@eberware.com",

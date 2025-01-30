@@ -117,6 +117,7 @@ public class History {
         }
 
         public enum DatabaseColumn {
+            story_id,
             title,
             content
         }

@@ -13,13 +13,15 @@ public class UserQueries {
             from
                 users
                     inner join contact_infos
-                               on contact_infos.id = users.id
+                        on contact_infos.id = users.id
                     left join addresses
-                               on addresses.contact_info_id = contact_infos.id
+                        on addresses.contact_info_id = contact_infos.id
                     left join stories
-                               on users.id = stories.owner_id || contact_infos.id = stories.owner_id
+                        on users.id = stories.owner_id || contact_infos.id = stories.owner_id
                     left join story_details
-                               on stories.id = story_details.story_id
+                        on stories.id = story_details.story_id
+                    left join user_authorities
+                        on users.id = user_authorities.user_id
             
             """
     );
@@ -150,14 +152,11 @@ public class UserQueries {
                     user_id,
                     authority
                 ) values (
-                    %s,
+                    @user_id,
                     %s
                 );
                 """,
-                List.of(
-                        new Query.Parameter(index, Parameter.USER_ID.get_key()),
-                        new Query.Parameter(index, Parameter.AUTHORITY.get_key())
-                )
+                new Query.Parameter(index, Parameter.AUTHORITY.get_key())
         );
     }
 

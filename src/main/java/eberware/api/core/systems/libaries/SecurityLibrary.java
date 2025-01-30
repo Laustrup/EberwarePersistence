@@ -17,12 +17,9 @@ public class SecurityLibrary {
 
     public static final char passwordEncodingCharacter = '€';
 
-    public static final String gibberishRules = String.format("""
-            1. Each index must be between %s and %s
-            """,
-            bCryptOffsetLowerBound,
-            bCryptOffsetUpperBound
-    );
+    public static final String gibberishRules = """
+            1. Each index must be between a -> f either in upper or lowercase
+            """;
 
     public static void setup(
             String gibberish
@@ -49,16 +46,16 @@ public class SecurityLibrary {
 
     public static boolean gibberishIsPermitted(String gibberish) {
         for (char letter : gibberish.toCharArray())
-            if (!gibberishIsValid(letter, gibberish.length()))
+            if (!gibberishIsValid(letter))
                 return false;
 
         return true;
     }
 
-    private static boolean gibberishIsValid(char letter, int length) {
+    private static boolean gibberishIsValid(char letter) {
         int hex = PasswordService.convertHexToInt(letter);
 
-        return hex > bCryptOffsetLowerBound && hex * length < bCryptOffsetUpperBound;
+        return true;
     }
 
     @Getter

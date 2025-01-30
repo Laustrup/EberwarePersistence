@@ -39,9 +39,9 @@ public class PasswordService {
         return password.toString();
     }
 
-    private static Password enGibberise(String plainText)
+    private static Password enGibberise(String bcrypt)
             throws SizeLimitExceededException, IllegalArgumentException {
-        StringBuilder password = new StringBuilder(encoder.encode(plainText));
+        StringBuilder password = new StringBuilder(bcrypt);
         StringBuilder stash = new StringBuilder();
 
         StringService.Configuration stringConfiguration = new StringService.Configuration(false, true);
@@ -77,7 +77,7 @@ public class PasswordService {
 
     public static int convertHexToInt(char hex) throws IllegalArgumentException {
         return switch (hex) {
-            case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> (int) hex;
+            case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> Integer.parseInt(String.valueOf(hex));
             case 'a', 'A' -> 10;
             case 'b', 'B' -> 11;
             case 'c', 'C' -> 12;

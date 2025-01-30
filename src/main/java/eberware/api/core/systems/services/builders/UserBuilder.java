@@ -56,60 +56,56 @@ public class UserBuilder {
                     () -> {
                         zoneId.set(ZoneId.of(get(
                                 column -> getString(resultSet, column),
-                                DatabaseTable.USER.get_title(),
                                 User.DatabaseColumns.zone_id.name()
                         )));
                         userId.set(get(
                                 column -> getUUID(resultSet, column),
-                                DatabaseTable.USER.get_title(),
                                 Model.DatabaseColumn.id.name()
                         ));
                         password.set(get(
                                 column -> getString(resultSet, column),
-                                DatabaseTable.USER.get_title(),
                                 User.DatabaseColumns.password.name()
                         ));
                         authorities.add(User.Authority.valueOf(get(
                                 column -> getString(resultSet, column),
-                                DatabaseTable.USER.get_title(),
                                 User.DatabaseColumns.authority.name()
                         )));
-                        stories.putIfAbsent(
+
+                        putIfAbsent(
+                                stories,
                                 get(
                                         column -> getUUID(resultSet, column),
-                                        DatabaseTable.STORY.get_title(),
-                                        Model.DatabaseColumn.id.name()
+                                        History.Story.DatabaseColumn.story_id.name()
                                 ), HistoryBuilder.buildStory(resultSet)
                         );
-                        addresses.putIfAbsent(
+
+                        putIfAbsent(
+                                addresses,
                                 get(
                                         column -> getUUID(resultSet, column),
-                                        DatabaseTable.ADDRESS.get_title(),
                                         User.ContactInfo.Address.DatabaseColumn.id.name()
-                                ), buildAddress(resultSet, stories)
+                                ),
+                                buildAddress(resultSet, stories)
                         );
+
                         contactInfo.set(new User.ContactInfo(
                                 get(
                                         column -> getString(resultSet, column),
-                                        DatabaseTable.CONTACT_INFO.get_title(),
                                         User.ContactInfo.DatabaseColumn.name.name()
                                 ),
                                 get(
                                         column -> getString(resultSet, column),
-                                        DatabaseTable.CONTACT_INFO.get_title(),
                                         User.ContactInfo.DatabaseColumn.email.name()
                                 ),
                                 addresses.values().stream().toList()
                         ));
                         timestamp.set(get(
                                 column -> getTimestamp(resultSet, column, Timestamp::toInstant),
-                                DatabaseTable.USER.get_title(),
                                 Model.DatabaseColumn.timestamp.name()
                         ));
                     },
                     primary -> !get(
                             column -> getUUID(resultSet, column),
-                            DatabaseTable.USER.get_title(),
                             Model.DatabaseColumn.id.name()
                     ).equals(userId.get()),
                     userId.get()
@@ -121,7 +117,8 @@ public class UserBuilder {
                     contactInfo.get(),
                     zoneId.get(),
                     authorities,
-                    new History(HistoryBuilder.getStoriesOfOwner(stories, userId.get()).toList()),
+//                    new History(new ArrayList<>(HistoryBuilder.getStoriesOfOwner(stories, userId.get()).toList())),
+                    null,
                     timestamp.get()
             );
         } catch (Exception e) {
@@ -179,7 +176,7 @@ public class UserBuilder {
                         DatabaseTable.ADDRESS.get_title(),
                         User.ContactInfo.Address.DatabaseColumn.country.name()
                 ),
-                new History(HistoryBuilder.getStoriesOfOwner(stories, id).toList()),
+                new History(new ArrayList<>(HistoryBuilder.getStoriesOfOwner(stories, id).toList())),
                 get(
 
                         column -> getTimestamp(resultSet, column, Timestamp::toInstant),

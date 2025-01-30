@@ -6,6 +6,7 @@ import eberware.api.core.systems.libaries.DatabaseLibrary;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -189,7 +190,10 @@ public class DatabaseManager {
                 ));
             }
 
-            preparedStatement = Objects.requireNonNull(DatabaseGate.getConnection(url)).prepareStatement(query.get_script());
+            preparedStatement = Objects.requireNonNull(DatabaseGate.getConnection(url)).prepareStatement(
+                    query.get_script(),
+                    Statement.RETURN_GENERATED_KEYS
+            );
 
             for (Integer key : databaseParametersByIndex.keySet()) {
                 DatabaseParameter parameter = databaseParametersByIndex.get(key);
