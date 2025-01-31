@@ -50,7 +50,7 @@ public class ScriptorianManager {
                         conflict to resolve is:
                         %s
                         
-                        It can either be done by deleting the row with successtamp of null, which will make it run again on next startup or by setting it to now(), which will ignore the script on startup.
+                        It can either be done by deleting the row with successstamp of null, which will make it run again on next startup or by setting it to now(), which will ignore the script on startup.
                         """,
                         scriptoriesWithoutSuccess.getFirst().get_errorMessage()
                 ));
@@ -173,7 +173,7 @@ public class ScriptorianManager {
                         name[0].substring(1).replace('T', ' '),
                         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
                 )),
-                new DatabaseParameter(Parameter.SUCCESSTAMP.get_key(), errorMessage == null ? Instant.now() : null)
+                new DatabaseParameter(Parameter.SUCCESSSTAMP.get_key(), errorMessage == null ? Instant.now() : null)
         );
     }
 
@@ -196,7 +196,7 @@ public class ScriptorianManager {
                                         Timestamp::toInstant
                                 ),
                                 JDBCService.get(
-                                        resultSet.getTimestamp(Scriptorian.Scriptory.DatabaseColumns.successtamp.name()),
+                                        resultSet.getTimestamp(Scriptorian.Scriptory.DatabaseColumns.successstamp.name()),
                                         Timestamp::toInstant
                                 ),
                                 JDBCService.get(

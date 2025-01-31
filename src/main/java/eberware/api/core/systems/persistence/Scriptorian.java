@@ -31,7 +31,7 @@ public class Scriptorian {
         /**
          * When the file was executed successfully.
          */
-        private Instant _successtamp;
+        private Instant _successstamp;
 
         /**
          * When the file first ran.
@@ -39,7 +39,7 @@ public class Scriptorian {
         private Instant _timestamp;
 
         public boolean is_success() {
-            return _successtamp != null;
+            return _successstamp != null;
         }
 
         public enum DatabaseColumns {
@@ -48,7 +48,7 @@ public class Scriptorian {
             error_message,
             content,
             versionstamp,
-            successtamp,
+            successstamp,
             timestamp
         }
     }

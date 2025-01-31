@@ -14,7 +14,7 @@ public class ScriptorianQueries {
         error_message longtext,
         content longtext not null,
         versionstamp datetime not null,
-        successtamp datetime,
+        successstamp datetime,
         timestamp datetime not null default now(),
 
         primary key (file_name)
@@ -22,7 +22,7 @@ public class ScriptorianQueries {
     """);
 
     public static final Query findScriptoriesWithoutSuccess = new Query(/*language=MySQL*/ """
-    select * from scriptories where successtamp is null;
+    select * from scriptories where successstamp is null;
     """);
 
     public static final Query findAllScriptories = new Query(/*language=MySQL*/ """
@@ -37,7 +37,7 @@ public class ScriptorianQueries {
                         error_message,
                         content,
                         versionstamp,
-                        successtamp
+                        successstamp
                     ) values %s;
                     """,
                     Query.valuesInsertCollection(Parameter.values().length)
@@ -54,7 +54,7 @@ public class ScriptorianQueries {
         ERROR_MESSAGE("scriptorian_error_message"),
         CONTENT("scriptorian_content"),
         VERSIONSTAMP("scriptorian_versionstamp"),
-        SUCCESSTAMP("scriptorian_successtamp");
+        SUCCESSSTAMP("scriptorian_successstamp");
 
         private final String _key;
 
